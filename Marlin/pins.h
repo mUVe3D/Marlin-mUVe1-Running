@@ -1,6 +1,8 @@
 #ifndef PINS_H
 #define PINS_H
 
+#define LASER_PIN 9
+
 #define X_MS1_PIN -1
 #define X_MS2_PIN -1
 #define Y_MS1_PIN -1

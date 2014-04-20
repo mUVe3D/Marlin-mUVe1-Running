@@ -344,7 +344,14 @@ ISR(TIMER1_COMPA_vect)
   if (current_block != NULL) {
     // Set directions TO DO This should be done once during init of trapezoid. Endstops -> interrupt
     out_bits = current_block->direction_bits;
-
+    
+    #ifdef MUVE
+    if (current_block->laser == LASER_ON) {
+		analogWrite(LASER_PIN, current_block->laser_power);
+	} else {
+		analogWrite(LASER_PIN, 0);
+	}
+	#endif // MUVE
 
     // Set the direction bits (X_AXIS=A_AXIS and Y_AXIS=B_AXIS for COREXY)
     if((out_bits & (1<<X_AXIS))!=0){

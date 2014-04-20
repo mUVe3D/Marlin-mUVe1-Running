@@ -227,11 +227,9 @@ float delta[3] = {0.0, 0.0, 0.0};
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
 static float peel_distance = 0; //User by mUVe 3D Peel Control
-static float peel_speed = 0; //User by mUVe 3D Peel Control
-static float peel_pause = 0; //User by mUVe 3D Peel Control
-static float laser_power=0; //used by mUVe 3D laser controls
-static float flag=0; //used by mUVe 3D laser controls
-static float laser=0; //used by mUVe 3D laser controls
+static float peel_speed = 0; //Used by mUVe 3D Peel Control
+static float peel_pause = 0; //Used by mUVe 3D Peel Control
+static float laser_power = 0; //Used by mUVe 3D laser control
 static float offset[3] = {0.0, 0.0, 0.0};
 static bool home_all_axis = true;
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
@@ -2493,9 +2491,8 @@ void process_commands()
     
     case 652: //Turn off laser now
     {
-     digitalWrite(9, 0); //turn off laser 
-     analogWrite(9, 0); //turn off laser
-     laser=0; //declared at beginning of file with public variables
+     digitalWrite(LASER_PIN, 0); //turn off laser 
+     analogWrite(LASER_PIN, 0); //turn off laser
      st_synchronize();
     }
     
@@ -2873,31 +2870,7 @@ void prepare_move()
       active_extruder_parked = false;
     }
   }
-#endif //DUAL_X_CARRIAGE
-
-  if((code_seen('E'))) //turn on flag if an E was detected in this line of GCode, turn it off if it was not.
-    {
-     flag=1;   //declared at beginning of file with public variables 
-    }
-  else {
-    flag=0;  //declared at beginning of file with public variables  
-  }
-  
-  if(flag == 1 && laser == 0) //if the flag is detected and the laser is not already on, turn it on and sync
-    {
-     st_synchronize();
-     digitalWrite(9, laser_power); //turn on laser 
-     analogWrite(9, laser_power); //turn on laser
-     laser=1; //declared at beginning of file with public variables
-    }
-  if(flag == 0 && laser == 1) //if the flag is not detected and the laser is already on, turn it off and sync
-  {
-      st_synchronize();
-      digitalWrite(9, 0); //turn off laser
-      analogWrite(9, 0); //turn off laser 
-      laser=0; //declared at beginning of file with public variables
-    }
-      
+#endif //DUAL_X_CARRIAGE      
 
   //destination[E_AXIS] = 0;
   // Do not use feedmultiply for E or Z only moves
@@ -2905,8 +2878,11 @@ void prepare_move()
       plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[Z_AXIS], feedrate/60, active_extruder);
       current_position[E_AXIS] = current_position[Z_AXIS];
   }
-  else {
+  else if (current_position[E_AXIS] == destination[E_AXIS]) {
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[Z_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
+  }
+  else {
+	plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[Z_AXIS], feedrate*feedmultiply/60/100.0, active_extruder, LASER_ON, laser_power);
   }
   
 #endif //else DELTA

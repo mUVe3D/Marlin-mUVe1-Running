@@ -220,3 +220,8 @@ extern unsigned long stoptime;
 extern uint8_t active_extruder;
 
 #endif
+
+#ifdef MUVE
+  #define LASER_ON 1
+  #define LASER_OFF 0
+#endif
